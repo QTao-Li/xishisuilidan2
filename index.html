@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="礼金单" />
+<title>结婚礼金单</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23B5202A'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23E7D5A6' font-family='serif'%3E%E5%9B%8D%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --paper:#FBF4E6; --card:#FFFDF7; --ink:#33261E; --inkSoft:#8C7B6B;
+    --red:#B5202A; --redDeep:#7C1319; --redTint:#F4E4DE;
+    --gold:#AE8A3C; --goldSoft:#E7D5A6; --line:#EADFC8;
+    --green:#3E8E63; --greenTint:#E5F0E9;
+    --serif:"Songti SC","STSong","SimSun",serif;
+    --sans:"PingFang SC",-apple-system,"Helvetica Neue",sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior-y:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  input{font-family:inherit;}
+  .wrap{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:120px;}
+
+  .cover{background:var(--red);color:#FBEFD9;padding:calc(env(safe-area-inset-top) + 22px) 20px 18px;position:relative;overflow:hidden;}
+  .cover .frame{position:absolute;inset:8px;border:1px solid rgba(231,213,166,.42);border-radius:6px;pointer-events:none;}
+  .cover .top{position:relative;display:flex;align-items:flex-start;justify-content:space-between;}
+  .xi{font-family:var(--serif);font-size:54px;line-height:1;color:var(--goldSoft);text-shadow:0 1px 0 rgba(0,0,0,.15);}
+  .cover .acts{display:flex;gap:8px;}
+  .cover .acts button{color:#FBEFD9;border:1px solid rgba(231,213,166,.5);border-radius:999px;padding:7px 12px;font-size:13px;}
+  .cover .acts button:active{opacity:.7;}
+  .title-row{position:relative;margin-top:10px;}
+  #title{font-family:var(--serif);font-size:25px;letter-spacing:2px;display:inline-flex;align-items:center;gap:8px;color:#FFF7E6;}
+  #title .pen{font-size:13px;opacity:.7;}
+  #titleInput{font-family:var(--serif);font-size:25px;background:transparent;color:#FFF7E6;border:none;border-bottom:1px solid rgba(231,213,166,.6);outline:none;width:100%;padding:0 0 2px;}
+  .stats{position:relative;margin-top:16px;display:flex;align-items:flex-end;gap:22px;}
+  .stat .k{font-size:12px;opacity:.85;}
+  .stat .big{font-family:var(--serif);font-size:26px;line-height:1.1;}
+  .stat .big .yuan{font-size:16px;opacity:.85;}
+  .stat .med{font-family:var(--serif);font-size:20px;}
+  .split{position:relative;margin-top:11px;font-size:12px;opacity:.9;display:flex;gap:14px;}
+  .split b{font-family:var(--serif);font-weight:600;}
+
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 4px;scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{white-space:nowrap;font-size:14px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink);flex-shrink:0;}
+  .chip.on{background:var(--red);border-color:var(--red);color:#FFF7E6;}
+  .searchbar{display:flex;gap:8px;padding:6px 16px 2px;}
+  .searchbar .box{flex:1;display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;background:var(--card);border:1px solid var(--line);border-radius:10px;}
+  .searchbar input{flex:1;border:none;outline:none;background:transparent;font-size:15px;color:var(--ink);}
+
+  main{padding:8px 16px 0;}
+  .grp{margin-top:14px;}
+  .grphd{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 7px;}
+  .grpname{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:1px;}
+  .grpsub{font-size:12px;color:var(--inkSoft);}
+  .card{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .prow{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left;}
+  .prow:active{background:var(--redTint);}
+  .prow + .prow{border-top:1px solid var(--line);}
+  .prow .main{flex:1;min-width:0;}
+  .prow .nm{display:flex;align-items:center;gap:8px;}
+  .prow .name{font-family:var(--serif);font-size:17px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tag{font-size:11px;border-radius:999px;padding:1px 8px;flex-shrink:0;line-height:1.6;}
+  .tag.grp{color:var(--redDeep);background:var(--redTint);border:1px solid #E6C9C2;}
+  .tag.cash{color:var(--gold);background:var(--paper);border:1px solid var(--goldSoft);}
+  .tag.wx{color:var(--green);background:var(--greenTint);border:1px solid #C6E0D0;}
+  .prow .sub{font-size:12px;color:var(--inkSoft);margin-top:3px;}
+  .pair{text-align:right;flex-shrink:0;font-family:var(--serif);}
+  .pair .in{font-size:16px;color:var(--red);}
+  .pair .out{font-size:13px;color:var(--green);margin-top:2px;}
+  .pair .zero{color:var(--inkSoft);opacity:.5;}
+  .chev{color:var(--inkSoft);font-size:18px;flex-shrink:0;}
+
+  .empty{text-align:center;padding:60px 24px;}
+  .empty .xi{font-size:44px;color:var(--goldSoft);}
+  .empty p{color:var(--inkSoft);font-size:15px;margin:12px 0 0;}
+  .empty a{color:var(--red);}
+
+  #fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 20px);background:var(--red);color:#FFF7E6;padding:13px 22px 13px 18px;border-radius:999px;font-size:16px;font-weight:600;box-shadow:0 6px 18px rgba(124,19,25,.35);display:flex;align-items:center;gap:7px;z-index:40;}
+  #fab:active{opacity:.85;}
+  #fab .plus{font-size:20px;line-height:1;}
+
+  #personScreen{display:none;position:fixed;inset:0;background:var(--paper);z-index:50;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .pcover{background:var(--red);color:#FBEFD9;padding:calc(env(safe-area-inset-top) + 14px) 18px 18px;position:relative;}
+  .pcover .frame{position:absolute;inset:8px;border:1px solid rgba(231,213,166,.42);border-radius:6px;pointer-events:none;}
+  .pback{position:relative;display:flex;align-items:center;justify-content:space-between;}
+  .pback button{color:#FBEFD9;font-size:15px;display:flex;align-items:center;gap:4px;}
+  .pname{position:relative;margin-top:12px;display:flex;align-items:center;gap:10px;}
+  .pname .n{font-family:var(--serif);font-size:28px;letter-spacing:1px;color:#FFF7E6;}
+  .pname .g{font-size:12px;background:rgba(231,213,166,.2);border:1px solid rgba(231,213,166,.4);border-radius:999px;padding:2px 10px;}
+  .ptot{position:relative;margin-top:14px;display:flex;gap:26px;}
+  .ptot .k{font-size:12px;opacity:.85;}
+  .ptot .v{font-family:var(--serif);font-size:22px;}
+  .pbody{padding:6px 16px 120px;}
+  .sec{margin-top:18px;}
+  .sechd{display:flex;align-items:center;justify-content:space-between;padding:0 4px 8px;}
+  .sechd .l{display:flex;align-items:baseline;gap:8px;}
+  .sechd .st{font-family:var(--serif);font-size:16px;font-weight:600;}
+  .sechd .ssub{font-size:12px;color:var(--inkSoft);}
+  .sechd .addbtn{font-size:13px;color:var(--red);display:flex;align-items:center;gap:3px;}
+  .txrow{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left;}
+  .txrow:active{background:var(--redTint);}
+  .txrow + .txrow{border-top:1px solid var(--line);}
+  .txrow .main{flex:1;min-width:0;}
+  .txrow .occ{display:flex;align-items:center;gap:8px;}
+  .txrow .occ .o{font-family:var(--serif);font-size:16px;font-weight:600;}
+  .txrow .note{font-size:12px;color:var(--inkSoft);margin-top:3px;}
+  .txrow .r{text-align:right;flex-shrink:0;}
+  .txrow .r .a{font-family:var(--serif);font-size:18px;}
+  .txrow .r .a.in{color:var(--red);}
+  .txrow .r .a.out{color:var(--green);}
+  .txrow .r .d{font-size:11px;color:var(--inkSoft);margin-top:2px;}
+  .secempty{padding:16px 14px;color:var(--inkSoft);font-size:13px;text-align:center;}
+
+  .overlay{position:fixed;inset:0;z-index:70;display:flex;align-items:flex-end;justify-content:center;}
+  .scrim{position:absolute;inset:0;background:rgba(40,28,20,.45);}
+  .sheet{position:relative;width:100%;max-width:480px;background:var(--card);border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;padding-bottom:calc(env(safe-area-inset-bottom) + 22px);animation:up .22s ease;}
+  @keyframes up{from{transform:translateY(20px);opacity:.6;}to{transform:none;opacity:1;}}
+  .sheet .hd{position:sticky;top:0;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--line);z-index:2;}
+  .sheet .hd .t{font-family:var(--serif);font-size:17px;font-weight:600;}
+  .sheet .hd .cancel{color:var(--inkSoft);font-size:15px;}
+  .sheet .hd .save{color:var(--red);font-size:15px;font-weight:600;}
+  .sbody{padding:16px 18px 4px;}
+  .fld{margin-bottom:16px;}
+  .fld .lb{font-size:13px;color:var(--inkSoft);margin-bottom:6px;}
+  .fld input.txt{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;color:var(--ink);outline:none;}
+  .fld input.money{font-family:var(--serif);font-size:22px;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{font-size:14px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);}
+  .pill.on{border-color:var(--red);background:var(--redTint);color:var(--redDeep);}
+  .pill.add{color:var(--inkSoft);}
+  .seg{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .seg button{flex:1;padding:10px;font-size:15px;background:var(--paper);color:var(--inkSoft);}
+  .seg button.on{background:var(--red);color:#FFF7E6;}
+  .err{color:var(--red);font-size:13px;margin:-6px 0 12px;}
+  .del{width:100%;color:var(--red);background:var(--redTint);border:1px solid #E6C9C2;border-radius:10px;padding:11px;text-align:center;margin-top:4px;}
+  .del:active{opacity:.7;}
+
+  .menu{position:relative;width:100%;max-width:480px;padding:0 12px calc(env(safe-area-inset-bottom) + 12px);}
+  .menu .grp2{background:var(--card);border-radius:14px;overflow:hidden;}
+  .menu button{width:100%;padding:15px;font-size:16px;color:var(--ink);border-bottom:1px solid var(--line);}
+  .menu button:last-child{border-bottom:none;}
+  .menu button.warn{color:var(--red);}
+  .menu .cancelbtn{margin-top:8px;background:var(--card);border-radius:14px;width:100%;padding:15px;font-size:16px;font-weight:600;}
+
+  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 92px);background:var(--ink);color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;}
+  #toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap" id="listScreen">
+  <header class="cover">
+    <div class="frame"></div>
+    <div class="top">
+      <div class="xi">囍</div>
+      <div class="acts">
+        <button id="shareBtn">分享</button>
+        <button id="menuBtn">⋯</button>
+      </div>
+    </div>
+    <div class="title-row"><span id="title"></span></div>
+    <div class="stats">
+      <div class="stat"><div class="k">收礼合计</div><div class="big"><span class="yuan">¥</span><span id="statIn">0</span></div></div>
+      <div class="stat"><div class="k">随礼合计</div><div class="big" style="color:#E7D5A6"><span class="yuan">¥</span><span id="statOut">0</span></div></div>
+      <div class="stat"><div class="k">亲友</div><div class="med"><span id="statCount">0</span> 位</div></div>
+    </div>
+    <div class="split" id="splitLine">
+      <span>收礼 · 现金 <b id="statCash">¥0</b></span>
+      <span>微信 <b id="statWx">¥0</b></span>
+    </div>
+  </header>
+
+  <div class="chips" id="groupChips"></div>
+  <div class="searchbar">
+    <div class="box"><span style="color:var(--inkSoft);font-size:15px;">🔍</span>
+      <input id="search" placeholder="搜索姓名 / 分组" /></div>
+  </div>
+  <main id="list"></main>
+</div>
+
+<div id="personScreen"></div>
+
+<button id="fab"><span class="plus">＋</span>记一笔</button>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+var GROUP_ORDER = ["礼金·不用还","朋友","马院"];
+var METHODS = ["现金","微信"];
+var KEY = "xishi_ledger_v3";
+
+/* 收礼——发生在婚礼上 */
+var RECEIVED_SEED = [
+  {name:"姥爷",amount:2000,group:"礼金·不用还",method:""},
+  {name:"上下车礼",amount:6000,group:"礼金·不用还",method:""},
+  {name:"改口",amount:20200,group:"礼金·不用还",method:"",note:"10100×2"},
+  {name:"改口",amount:20000,group:"礼金·不用还",method:"",note:"10000×2"},
+  {name:"压箱底",amount:2000,group:"礼金·不用还",method:""},
+  {name:"嫁妆",amount:150000,group:"礼金·不用还",method:"",note:"15万"},
+  {name:"彩礼",amount:180000,group:"礼金·不用还",method:"",note:"15万+3万"},
+
+  {name:"嘉丽",amount:500,group:"朋友",method:""},
+  {name:"媛媛",amount:500,group:"朋友",method:""},
+  {name:"范敏珍",amount:500,group:"朋友",method:""},
+  {name:"王瑞琪",amount:500,group:"朋友",method:""},
+  {name:"王伟洪",amount:500,group:"朋友",method:""},
+  {name:"冰洁",amount:800,group:"朋友",method:""},
+  {name:"洋洋",amount:1000,group:"朋友",method:""},
+  {name:"赵楠",amount:500,group:"朋友",method:""},
+  {name:"小颖姐",amount:600,group:"朋友",method:""},
+  {name:"璐明",amount:800,group:"朋友",method:""},
+
+  {name:"潘璐莹",amount:100,group:"马院",method:""},
+  {name:"陈奕瑾",amount:200,group:"马院",method:""},
+  {name:"王艺倩",amount:200,group:"马院",method:""},
+  {name:"段梦洁",amount:200,group:"马院",method:""},
+  {name:"刘丹",amount:200,group:"马院",method:""},
+  {name:"张遵理",amount:199.99,group:"马院",method:""},
+  {name:"林红",amount:200,group:"马院",method:""},
+  {name:"王亚如",amount:200,group:"马院",method:""},
+  {name:"杜昭莹",amount:200,group:"马院",method:""},
+  {name:"刘琪",amount:500,group:"马院",method:""},
+  {name:"院长",amount:500,group:"马院",method:""},
+  {name:"王芳芳",amount:200,group:"马院",method:""}
+];
+
+/* 随礼——本次无数据，可在 app 内随时添加 */
+var GIVEN_SEED = [];
+
+var state = { title:"结婚礼金单", persons:[], group:"全部", query:"" };
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function money(n){ return Number(n||0).toLocaleString("zh-CN",{maximumFractionDigits:2}); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function fmtDate(s){ if(!s) return ""; var p=s.split("-"); if(p.length!==3) return s; return p[0]+"."+Number(p[1])+"."+Number(p[2]); }
+function sum(arr){ return arr.reduce(function(s,t){return s+Number(t.amount||0);},0); }
+
+function buildSeed(){
+  var map={}, order=[];
+  RECEIVED_SEED.forEach(function(r){
+    if(!map[r.name]){ map[r.name]={id:uid(),name:r.name,group:r.group,received:[],given:[]}; order.push(r.name); }
+    map[r.name].received.push({id:uid(),amount:r.amount,method:r.method||"",occasion:"我的婚礼",date:"",note:r.note||""});
+  });
+  GIVEN_SEED.forEach(function(g){
+    if(!map[g.name]){ map[g.name]={id:uid(),name:g.name,group:"其他",received:[],given:[]}; order.push(g.name); }
+    map[g.name].given.push({id:uid(),amount:g.amount,method:"",occasion:g.occasion,date:g.date,note:""});
+  });
+  return order.map(function(n){return map[n];});
+}
+
+function load(){
+  try{ var raw=localStorage.getItem(KEY);
+    if(raw){ var d=JSON.parse(raw);
+      if(d.title) state.title=d.title;
+      if(Array.isArray(d.persons)) state.persons=d.persons;
+      return;
+    }
+  }catch(e){}
+  state.persons=buildSeed(); save();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({title:state.title,persons:state.persons})); }catch(e){} }
+
+function personById(id){ return state.persons.find(function(p){return p.id===id;}); }
+function groupsInUse(){
+  var set={}; state.persons.forEach(function(p){set[p.group]=1;});
+  var arr=GROUP_ORDER.filter(function(g){return set[g];});
+  Object.keys(set).forEach(function(g){ if(GROUP_ORDER.indexOf(g)<0) arr.push(g); });
+  return arr;
+}
+
+function updateStats(){
+  var inSum=0,outSum=0,cash=0,wx=0;
+  state.persons.forEach(function(p){
+    p.received.forEach(function(t){ var a=Number(t.amount||0); inSum+=a; if(t.method==="现金")cash+=a; else if(t.method==="微信")wx+=a; });
+    outSum+=sum(p.given);
+  });
+  document.getElementById("statIn").textContent=money(inSum);
+  document.getElementById("statOut").textContent=money(outSum);
+  document.getElementById("statCount").textContent=state.persons.length;
+  document.getElementById("statCash").textContent="¥"+money(cash);
+  document.getElementById("statWx").textContent="¥"+money(wx);
+  var sl=document.getElementById("splitLine");
+  if(sl) sl.style.display=(cash===0 && wx===0)?"none":"flex";
+}
+
+function renderChips(){
+  var list=["全部"].concat(groupsInUse());
+  document.getElementById("groupChips").innerHTML=list.map(function(g){
+    return '<button class="chip'+(state.group===g?" on":"")+'" data-g="'+esc(g)+'">'+esc(g)+'</button>';
+  }).join("");
+}
+
+function personRow(p){
+  var inS=sum(p.received), outS=sum(p.given);
+  var out = outS>0 ? '<div class="out">送 ¥'+money(outS)+'</div>' : '<div class="out zero">送 —</div>';
+  return '<li class="prow" data-id="'+p.id+'">'
+    +'<div class="main"><div class="nm"><span class="name">'+esc(p.name)+'</span>'
+    +'<span class="tag grp">'+esc(p.group)+'</span></div></div>'
+    +'<div class="pair"><div class="in">收 ¥'+money(inS)+'</div>'+out+'</div>'
+    +'<div class="chev">›</div></li>';
+}
+function renderList(){
+  var q=state.query.trim();
+  var ps=state.persons.filter(function(p){
+    if(state.group!=="全部" && p.group!==state.group) return false;
+    if(q && (p.name||"").indexOf(q)<0 && (p.group||"").indexOf(q)<0) return false;
+    return true;
+  });
+  var el=document.getElementById("list");
+  if(ps.length===0){
+    el.innerHTML='<div class="empty"><div class="xi">囍</div><p>'
+      +(state.persons.length>0?"没有找到匹配的人":'还没有记录<br><a id="firstAdd">点这里记第一笔</a>')+'</p></div>';
+    return;
+  }
+  var buckets={}; ps.forEach(function(p){(buckets[p.group]=buckets[p.group]||[]).push(p);});
+  var order=GROUP_ORDER.filter(function(g){return buckets[g];});
+  Object.keys(buckets).forEach(function(g){ if(order.indexOf(g)<0) order.push(g); });
+  el.innerHTML=order.map(function(g){
+    var items=buckets[g];
+    var inS=0,outS=0; items.forEach(function(p){inS+=sum(p.received);outS+=sum(p.given);});
+    var sub='收 ¥'+money(inS)+(outS>0?' · 送 ¥'+money(outS):'');
+    return '<section class="grp"><div class="grphd"><span class="grpname">'+esc(g)+'</span>'
+      +'<span class="grpsub">'+items.length+' 位 · '+sub+'</span></div>'
+      +'<ul class="card">'+items.map(personRow).join("")+'</ul></section>';
+  }).join("");
+}
+
+function refresh(){ renderChips(); updateStats(); renderList(); }
+
+function renderTitle(){
+  document.querySelector(".title-row").innerHTML='<span id="title">'+esc(state.title)+' <span class="pen">✎</span></span>';
+  document.getElementById("title").addEventListener("click", startTitleEdit);
+}
+function startTitleEdit(){
+  var row=document.querySelector(".title-row");
+  row.innerHTML='<input id="titleInput" maxlength="24">';
+  var inp=document.getElementById("titleInput");
+  inp.value=state.title; inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+  function finish(){ state.title=(inp.value.trim()||"结婚礼金单"); save(); renderTitle(); }
+  inp.addEventListener("blur",finish);
+  inp.addEventListener("keydown",function(e){ if(e.key==="Enter") inp.blur(); });
+}
+
+function txRow(p,t,kind){
+  var cls=kind==="received"?"in":"out";
+  var mtag = t.method ? '<span class="tag '+(t.method==="现金"?"cash":"wx")+'">'+esc(t.method)+'</span>' : '';
+  var note = t.note ? '<div class="note">'+esc(t.note)+'</div>' : '';
+  var d = fmtDate(t.date);
+  return '<li class="txrow" data-tx="'+t.id+'" data-kind="'+kind+'">'
+    +'<div class="main"><div class="occ"><span class="o">'+esc(t.occasion||(kind==="received"?"收礼":"随礼"))+'</span>'+mtag+'</div>'+note+'</div>'
+    +'<div class="r"><div class="a '+cls+'">¥'+money(t.amount)+'</div>'+(d?'<div class="d">'+d+'</div>':'')+'</div></li>';
+}
+function renderPerson(id){
+  var p=personById(id); if(!p) return;
+  var inS=sum(p.received), outS=sum(p.given);
+  function section(title,list,kind){
+    var rows = list.length ? '<ul class="card">'+list.map(function(t){return txRow(p,t,kind);}).join("")+'</ul>'
+      : '<ul class="card"><li class="secempty">还没有'+(kind==="received"?"收礼":"随礼")+'记录</li></ul>';
+    return '<section class="sec"><div class="sechd"><div class="l"><span class="st">'+title+'</span>'
+      +'<span class="ssub">'+list.length+' 笔 · ¥'+money(sum(list))+'</span></div>'
+      +'<button class="addbtn" data-add="'+kind+'">＋ 添加</button></div>'+rows+'</section>';
+  }
+  var html='<div class="pcover"><div class="frame"></div>'
+    +'<div class="pback"><button id="backBtn">‹ 返回</button>'
+    +'<button id="editPerson">编辑资料</button></div>'
+    +'<div class="pname"><span class="n">'+esc(p.name)+'</span><span class="g">'+esc(p.group)+'</span></div>'
+    +'<div class="ptot"><div><div class="k">收礼（被随礼）</div><div class="v" style="color:#FFF7E6">¥'+money(inS)+'</div></div>'
+    +'<div><div class="k">随礼（送出）</div><div class="v" style="color:#E7D5A6">¥'+money(outS)+'</div></div></div></div>'
+    +'<div class="pbody">'
+    + section("收礼 · 别人随给我",p.received,"received")
+    + section("随礼 · 我随给他",p.given,"given")
+    +'</div>';
+  var scr=document.getElementById("personScreen");
+  scr.innerHTML=html; scr.style.display="block"; window.scrollTo(0,0);
+  document.getElementById("listScreen").style.display="none";
+  document.getElementById("fab").style.display="none";
+
+  document.getElementById("backBtn").addEventListener("click",showList);
+  document.getElementById("editPerson").addEventListener("click",function(){ openPersonEdit(p.id); });
+  scr.querySelectorAll("[data-add]").forEach(function(b){
+    b.addEventListener("click",function(){ openTx({mode:"new",kind:b.getAttribute("data-add"),personId:p.id}); });
+  });
+  scr.querySelectorAll(".txrow").forEach(function(li){
+    li.addEventListener("click",function(){
+      var kind=li.getAttribute("data-kind"); var tid=li.getAttribute("data-tx");
+      var arr = kind==="received"?p.received:p.given;
+      var t=arr.find(function(x){return x.id===tid;});
+      if(t) openTx({mode:"edit",kind:kind,personId:p.id,tx:t});
+    });
+  });
+}
+function showList(){
+  document.getElementById("personScreen").style.display="none";
+  document.getElementById("listScreen").style.display="block";
+  document.getElementById("fab").style.display="flex";
+  refresh();
+}
+
+function openTx(opts){
+  var editing = opts.mode==="edit";
+  var kindFixed = !!opts.kind;
+  var kind = opts.kind || "received";
+  var person = opts.personId ? personById(opts.personId) : null;
+  var t = opts.tx || {};
+  var sel = { kind:kind, group: person ? person.group : (state.group!=="全部"?state.group:(groupsInUse()[0]||"朋友")), method: t.method||"" };
+  var groups=groupsInUse();
+
+  function pillRow(items,active,dataKind,extra){
+    return items.map(function(it){return '<button class="pill'+(it===active?" on":"")+'" data-p="'+dataKind+'" data-v="'+esc(it)+'">'+esc(it)+'</button>';}).join("")+(extra||"");
+  }
+  var showTypePicker = !kindFixed;
+  var showPerson = !person;
+  var occDefault = editing ? (t.occasion||"") : (kind==="received"?"我的婚礼":"");
+  var body=''
+    + (showTypePicker ? '<div class="fld"><div class="lb">类型</div><div class="seg" id="segKind">'
+        +'<button data-k="received"'+(kind==="received"?' class="on"':'')+'>收礼（别人给我）</button>'
+        +'<button data-k="given"'+(kind==="given"?' class="on"':'')+'>随礼（我给别人）</button></div></div>' : '')
+    + (showPerson ? '<div class="fld"><div class="lb">姓名 / 名目</div><input class="txt" id="fName" list="nameList" placeholder="输入或选择已有姓名">'
+        +'<datalist id="nameList">'+state.persons.map(function(p){return '<option value="'+esc(p.name)+'">';}).join("")+'</datalist></div>'
+        +'<div class="fld"><div class="lb">分组</div><div class="pills" id="pGroup">'
+        +pillRow(groups,sel.group,"group",'<button class="pill add" data-p="newgroup">＋ 新建</button>')+'</div></div>' : '')
+    + '<div class="fld"><div class="lb">金额（元）</div><input class="txt money" id="fAmount" inputmode="decimal" type="number" placeholder="0" value="'+(editing?esc(t.amount):"")+'" style="color:'+(kind==="received"?"var(--red)":"var(--green)")+'"></div>'
+    + '<div class="fld"><div class="lb">事由 / 场合</div><input class="txt" id="fOcc" placeholder="'+(kind==="received"?"我的婚礼":"结婚 / 得子 / 满月 / 乔迁")+'" value="'+esc(occDefault)+'"></div>'
+    + '<div class="fld"><div class="lb">方式</div><div class="pills" id="pMethod">'
+        +'<button class="pill'+(sel.method==="现金"?" on":"")+'" data-p="method" data-v="现金">现金</button>'
+        +'<button class="pill'+(sel.method==="微信"?" on":"")+'" data-p="method" data-v="微信">微信</button>'
+        +'<button class="pill'+(sel.method===""?" on":"")+'" data-p="method" data-v="">不记</button></div></div>'
+    + '<div class="fld"><div class="lb">日期（选填）</div><input class="txt" id="fDate" type="date" value="'+esc(t.date||"")+'"></div>'
+    + '<div class="fld"><div class="lb">备注（选填）</div><input class="txt" id="fNote" placeholder="随手记" value="'+esc(t.note||"")+'"></div>'
+    + '<div class="err" id="fErr" style="display:none"></div>'
+    + (editing ? '<button class="del" id="delTx">删除这一笔</button>' : '');
+
+  var modal=document.getElementById("modal");
+  modal.innerHTML='<div class="overlay"><div class="scrim" data-close="1"></div><div class="sheet">'
+    +'<div class="hd"><button class="cancel" data-close="1">取消</button>'
+    +'<div class="t">'+(editing?"编辑记录":"记一笔")+'</div>'
+    +'<button class="save" id="saveTx">保存</button></div><div class="sbody">'+body+'</div></div></div>';
+
+  modal.querySelectorAll("[data-close]").forEach(function(el){el.addEventListener("click",closeModal);});
+
+  if(showTypePicker){
+    modal.querySelector("#segKind").addEventListener("click",function(e){
+      var b=e.target.closest("button"); if(!b) return;
+      sel.kind=b.getAttribute("data-k");
+      this.querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});
+      var amt=modal.querySelector("#fAmount"); amt.style.color=(sel.kind==="received"?"var(--red)":"var(--green)");
+      var occ=modal.querySelector("#fOcc"); occ.placeholder=(sel.kind==="received"?"我的婚礼":"结婚 / 得子 / 满月 / 乔迁");
+    });
+  }
+  if(showPerson){
+    modal.querySelector("#pGroup").addEventListener("click",function(e){
+      var b=e.target.closest(".pill"); if(!b) return;
+      if(b.getAttribute("data-p")==="newgroup"){
+        var name=prompt("新分组名称"); if(!name) return; name=name.trim(); if(!name) return;
+        sel.group=name;
+        this.querySelectorAll(".pill").forEach(function(p){p.classList.remove("on");});
+        var addb=this.querySelector('[data-p="newgroup"]');
+        var nb=document.createElement("button"); nb.className="pill on"; nb.setAttribute("data-p","group"); nb.setAttribute("data-v",name); nb.textContent=name;
+        this.insertBefore(nb,addb); return;
+      }
+      if(b.getAttribute("data-p")!=="group") return;
+      sel.group=b.getAttribute("data-v");
+      this.querySelectorAll(".pill").forEach(function(p){ if(p.getAttribute("data-p")==="group") p.classList.toggle("on",p===b); });
+    });
+  }
+  modal.querySelector("#pMethod").addEventListener("click",function(e){
+    var b=e.target.closest(".pill"); if(!b) return;
+    sel.method=b.getAttribute("data-v");
+    this.querySelectorAll(".pill").forEach(function(p){p.classList.toggle("on",p===b);});
+  });
+
+  modal.querySelector("#saveTx").addEventListener("click",function(){
+    var errEl=modal.querySelector("#fErr");
+    var k = kindFixed ? kind : sel.kind;
+    var amt=parseFloat(modal.querySelector("#fAmount").value);
+    if(isNaN(amt)||amt<0){ errEl.textContent="请填写有效的金额"; errEl.style.display="block"; return; }
+    var occ=modal.querySelector("#fOcc").value.trim() || (k==="received"?"我的婚礼":"随礼");
+    var rec={amount:amt,method:sel.method,occasion:occ,date:modal.querySelector("#fDate").value||"",note:modal.querySelector("#fNote").value.trim()};
+
+    var target=person;
+    if(!target){
+      var nm=modal.querySelector("#fName").value.trim();
+      if(!nm){ errEl.textContent="请填写姓名"; errEl.style.display="block"; return; }
+      target=state.persons.find(function(p){return p.name===nm;});
+      if(!target){ target={id:uid(),name:nm,group:sel.group,received:[],given:[]}; state.persons.push(target); }
+    }
+    if(editing){
+      var arr=k==="received"?target.received:target.given;
+      var i=arr.findIndex(function(x){return x.id===t.id;});
+      if(i>=0) arr[i]=Object.assign({},arr[i],rec);
+      toast("已更新");
+    } else {
+      rec.id=uid();
+      (k==="received"?target.received:target.given).push(rec);
+      toast("已添加");
+    }
+    save(); closeModal();
+    if(document.getElementById("personScreen").style.display==="block") renderPerson(target.id);
+    else refresh();
+  });
+
+  if(editing){
+    modal.querySelector("#delTx").addEventListener("click",function(){
+      if(!confirm("删除这一笔？")) return;
+      var arr=kind==="received"?person.received:person.given;
+      var i=arr.findIndex(function(x){return x.id===t.id;});
+      if(i>=0) arr.splice(i,1);
+      save(); closeModal(); renderPerson(person.id); toast("已删除");
+    });
+  }
+  if(showPerson) setTimeout(function(){ var f=modal.querySelector("#fName"); if(f) f.focus(); },120);
+}
+
+function openPersonEdit(id){
+  var p=personById(id); if(!p) return;
+  var groups=groupsInUse(); var sel={group:p.group};
+  var modal=document.getElementById("modal");
+  modal.innerHTML='<div class="overlay"><div class="scrim" data-close="1"></div><div class="sheet">'
+    +'<div class="hd"><button class="cancel" data-close="1">取消</button><div class="t">编辑资料</div>'
+    +'<button class="save" id="savePerson">保存</button></div><div class="sbody">'
+    +'<div class="fld"><div class="lb">姓名 / 名目</div><input class="txt" id="peName" value="'+esc(p.name)+'"></div>'
+    +'<div class="fld"><div class="lb">分组</div><div class="pills" id="peGroup">'
+    +groups.map(function(g){return '<button class="pill'+(g===p.group?" on":"")+'" data-v="'+esc(g)+'">'+esc(g)+'</button>';}).join("")
+    +'<button class="pill add" data-new="1">＋ 新建</button></div></div>'
+    +'<button class="del" id="delPerson">删除此条（含全部记录）</button>'
+    +'</div></div></div>';
+  modal.querySelectorAll("[data-close]").forEach(function(el){el.addEventListener("click",closeModal);});
+  modal.querySelector("#peGroup").addEventListener("click",function(e){
+    var b=e.target.closest(".pill"); if(!b) return;
+    if(b.getAttribute("data-new")){ var nm=prompt("新分组名称"); if(!nm) return; nm=nm.trim(); if(!nm) return;
+      sel.group=nm; this.querySelectorAll(".pill").forEach(function(x){x.classList.remove("on");});
+      var addb=this.querySelector('[data-new]'); var nb=document.createElement("button");
+      nb.className="pill on"; nb.setAttribute("data-v",nm); nb.textContent=nm; this.insertBefore(nb,addb); return; }
+    sel.group=b.getAttribute("data-v");
+    this.querySelectorAll(".pill").forEach(function(x){ if(!x.getAttribute("data-new")) x.classList.toggle("on",x===b); });
+  });
+  modal.querySelector("#savePerson").addEventListener("click",function(){
+    var nm=modal.querySelector("#peName").value.trim();
+    if(nm) p.name=nm; p.group=sel.group; save(); closeModal(); renderPerson(p.id); toast("已保存");
+  });
+  modal.querySelector("#delPerson").addEventListener("click",function(){
+    if(!confirm("删除「"+p.name+"」及其全部记录？")) return;
+    state.persons=state.persons.filter(function(x){return x.id!==p.id;});
+    save(); closeModal(); showList(); toast("已删除");
+  });
+}
+
+function closeModal(){ document.getElementById("modal").innerHTML=""; }
+
+function buildText(){
+  var lines=[state.title]; var inAll=0,outAll=0;
+  groupsInUse().forEach(function(g){
+    var ps=state.persons.filter(function(p){return p.group===g;});
+    if(!ps.length) return;
+    lines.push(""); lines.push("〖"+g+"〗");
+    ps.forEach(function(p){
+      var i=sum(p.received), o=sum(p.given); inAll+=i; outAll+=o;
+      lines.push(p.name+"　收¥"+money(i)+(o>0?"　送¥"+money(o):""));
+    });
+  });
+  return lines.join("\n")+"\n————————\n收礼合计 ¥"+money(inAll)+(outAll>0?"　随礼合计 ¥"+money(outAll):"");
+}
+document.getElementById("shareBtn").addEventListener("click",function(){
+  var text=buildText();
+  if(navigator.share){ navigator.share({title:state.title,text:text}).catch(function(){}); return; }
+  navigator.clipboard.writeText(text).then(function(){toast("已复制清单");},function(){toast("复制失败");});
+});
+document.getElementById("menuBtn").addEventListener("click",function(){
+  var m=document.getElementById("modal");
+  m.innerHTML='<div class="overlay"><div class="scrim" data-close="1"></div><div class="menu">'
+    +'<div class="grp2"><button id="mCopy">复制全部清单</button>'
+    +'<button id="mReset" class="warn">恢复初始数据</button></div>'
+    +'<button class="cancelbtn" data-close="1">取消</button></div></div>';
+  m.querySelectorAll("[data-close]").forEach(function(el){el.addEventListener("click",closeModal);});
+  m.querySelector("#mCopy").addEventListener("click",function(){
+    navigator.clipboard.writeText(buildText()).then(function(){toast("已复制清单");},function(){toast("复制失败");});
+    closeModal();
+  });
+  m.querySelector("#mReset").addEventListener("click",function(){
+    if(!confirm("恢复到初始录入的数据？之后的改动会清除。")) return;
+    state.persons=buildSeed(); state.group="全部"; save(); closeModal(); showList(); toast("已恢复初始数据");
+  });
+});
+
+document.getElementById("groupChips").addEventListener("click",function(e){
+  var b=e.target.closest(".chip"); if(!b) return;
+  state.group=b.getAttribute("data-g"); renderChips(); renderList();
+});
+document.getElementById("search").addEventListener("input",function(e){ state.query=e.target.value; renderList(); });
+document.getElementById("list").addEventListener("click",function(e){
+  if(e.target.id==="firstAdd"){ openTx({mode:"new"}); return; }
+  var li=e.target.closest(".prow"); if(!li) return;
+  renderPerson(li.getAttribute("data-id"));
+});
+document.getElementById("fab").addEventListener("click",function(){ openTx({mode:"new"}); });
+
+var toastTimer;
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove("show");},1600); }
+
+load(); renderTitle(); refresh();
+</script>
+</body>
+</html>
